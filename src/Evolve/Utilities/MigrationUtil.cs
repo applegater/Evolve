@@ -27,11 +27,13 @@ namespace Evolve.Utilities
             Check.NotNullOrEmpty(prefix, nameof(prefix)); // V
             Check.NotNullOrEmpty(separator, nameof(separator)); // __
 
+            var fileNameWithoutExtension = Path.GetFileNameWithoutExtension(script);
+
             // Check prefix
-            if (!Path.GetFileNameWithoutExtension(script).Substring(script.IndexOf(separator) + separator.Length, prefix.Length).Equals(prefix, StringComparison.OrdinalIgnoreCase))
+            if (!fileNameWithoutExtension.Substring(fileNameWithoutExtension.IndexOf(separator) + separator.Length, prefix.Length).Equals(prefix, StringComparison.OrdinalIgnoreCase))
                 throw new EvolveConfigurationException(string.Format(MigrationNamePrefixNotFound, prefix, script));
 
-            string migrationName = Path.GetFileNameWithoutExtension(script).Replace(prefix, ""); // Migration_description__1_3_1
+            string migrationName = fileNameWithoutExtension.Replace(prefix, ""); // Migration_description__1_3_1
 
             // Check separator
             int indexOfSeparator = migrationName.IndexOf(separator);
@@ -39,8 +41,8 @@ namespace Evolve.Utilities
                 throw new EvolveConfigurationException(string.Format(MigrationNameSeparatorNotFound, separator, script));
 
             description = new string(migrationName.Take(indexOfSeparator).ToArray()); // Migration_description
-            version = migrationName.Substring(indexOfSeparator + separator.Length)
-                                       .Replace("_", " "); // 1 3 1
+            version = migrationName.Substring(indexOfSeparator + separator.Length);
+                //.Replace("_", " "); // 1 3 1
 
             // Check version
             if (version.IsNullOrWhiteSpace() && throwIfNoVersion)
